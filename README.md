@@ -25,6 +25,23 @@ The buffer will not be modified.
 
 With a prefix argument prompt for the format.
 
+## Adding Formats
+
+Create your format function:
+
+```el
+(defun some-great-format (text multiline)
+  (if multiline
+      (multiline-format text)
+    (single-line-format text)))
+```
+
+Then add an entry to `copy-as-format-format-alist`:
+
+```el
+(add-to-list 'copy-as-format-format-alist '("great-format" some-great-format))
+```
+
 ## See Also
 
 * [git-link](https://github.com/sshaw/git-link)

@@ -40,7 +40,7 @@
   '(("bitbucket" copy-as-format--github)
     ("disqus"    copy-as-format--disqus)
     ("github"    copy-as-format--github)
-    ("gitlab"    copy-as-format--gitlab)
+    ("gitlab"    copy-as-format--github)
     ("hipchat"   copy-as-format--hipchat)
     ("html"      copy-as-format--html)
     ("jira"      copy-as-format--jira)
