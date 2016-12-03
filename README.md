@@ -6,6 +6,7 @@ formatted code
 ## Supported Formats/Services
 
 * BitBucket
+* Disqus
 * GitHub
 * GitLab
 * HipChat

@@ -38,6 +38,7 @@
 
 (defvar copy-as-format-format-alist
   '(("bitbucket" copy-as-format--github)
+    ("disqus"    copy-as-format--disqus)
     ("github"    copy-as-format--github)
     ("gitlab"    copy-as-format--gitlab)
     ("hipchat"   copy-as-format--hipchat)
@@ -76,12 +77,15 @@ With a prefix argument prompt for the format.
 	       text
 	       (use-region-p)))))
 
+(defun copy-as-format--disqus (text multiline)
+  (format "<pre><code class='%s'>%s</code></pre>"
+	  (copy-as-format--language)
+	  (xml-escape-string text)))
+
 (defun copy-as-format--github (text multiline)
   (if multiline
       (concat "```"
-	      (if (buffer-file-name)
-		  (file-name-extension (buffer-file-name))
-		"")
+	      (copy-as-format--language)
 	      "\n"
 	      text
 	      "\n```")
@@ -122,6 +126,10 @@ With a prefix argument prompt for the format.
 (defun copy-as-format--inline-markdown (text)
   (concat "`" text "`"))
 
+(defun copy-as-format--language ()
+  (if (buffer-file-name)
+      (file-name-extension (buffer-file-name))
+    ""))
 
 (provide 'copy-as-format)
 ;;; copy-as-format.el ends here
