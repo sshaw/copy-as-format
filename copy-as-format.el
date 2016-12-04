@@ -1,7 +1,7 @@
 ;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted text
 
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Version: 0.0.1
+;; Package-Version: 0.0.1
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, tools, convenience
 ;; URL: http://github.com/sshaw/copy-as-format
 
@@ -48,37 +48,23 @@
     ("slack"     copy-as-format--slack))
   "Alist of format names and the function to do the formatting")
 
-(defun copy-as-format ()
-  "Copy the current line or active region and add it to the kill ring as
-GitHub/Slack/JIRA/HipChat/... formatted code. Format defaults to `copy-as-format-default'.
-The buffer will not be modified.
-
-With a prefix argument prompt for the format.
-"
-  (interactive)
-  (let ((format (if current-prefix-arg
-		    (completing-read "Format: "
-				     (mapcar 'car copy-as-format-format-alist)
-				     nil
-				     t
-				     ""
-				     nil
-				     copy-as-format-default)
-		  copy-as-format-default))
-
-	(text (if (use-region-p)
-		  (buffer-substring (region-beginning) (region-end))
-		(buffer-substring (line-beginning-position) (line-end-position)))))
-
-    (setq deactivate-mark t)
-    (kill-new (funcall
-	       (cadr (assoc format copy-as-format-format-alist))
-	       ;;TODO: need to fix double \n when appending multiline closing delimiters?
-	       text
-	       (use-region-p)))))
+(defun copy-as-format--extract-text ()
+  (if (not (use-region-p))
+      (buffer-substring (line-beginning-position) (line-end-position))
+    ;; Avoid adding an extra blank line to the selection. This happens when point or mark
+    ;; is at the start of the next line.
+    ;;
+    ;; When selection is from bottom to top, exchange point and mark
+    ;; so that the `point' and `(region-end)' are the same.
+   (when (< (point) (mark))
+     (exchange-point-and-mark))
+    (let ((end (region-end)))
+      (when (= end (line-beginning-position))
+	(setq end (1- end)))
+      (buffer-substring (region-beginning) end))))
 
 (defun copy-as-format--disqus (text multiline)
-  (format "<pre><code class='%s'>%s</code></pre>"
+  (format "<pre><code class='%s'>%s</code></pre>\n"
 	  (copy-as-format--language)
 	  (xml-escape-string text)))
 
@@ -88,7 +74,7 @@ With a prefix argument prompt for the format.
 	      (copy-as-format--language)
 	      "\n"
 	      text
-	      "\n```")
+	      "\n```\n")
     (copy-as-format--inline-markdown text)))
 
 (defun copy-as-format--hipchat (text multiline)
@@ -99,13 +85,13 @@ With a prefix argument prompt for the format.
 (defun copy-as-format--html (text multiline)
   (setq text (xml-escape-string text))
   (if multiline
-      (concat "<pre><code>" text "</code></pre>")
+      (concat "<pre><code>" text "</code></pre>\n")
     (concat "<code>" text "</code>")))
 
 (defun copy-as-format--jira (text multiline)
   (if multiline
       ;; Do we want filenames? What extentions work?
-      (concat "{code}\n" text "\n{code}")
+      (concat "{code}\n" text "\n{code}\n")
     (concat "{{" text "}}")))
 
 (defun copy-as-format--markdown (text multiline)
@@ -118,7 +104,7 @@ With a prefix argument prompt for the format.
 
 (defun copy-as-format--slack (text multiline)
   (if multiline
-      (concat "```\n" text "\n```")
+      (concat "```\n" text "\n```\n")
     (copy-as-format--inline-markdown
      ;; Slack preserves leading and trailing whitespace
      (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" text))))
@@ -130,6 +116,44 @@ With a prefix argument prompt for the format.
   (if (buffer-file-name)
       (file-name-extension (buffer-file-name))
     ""))
+
+;;;###autoload
+(defun copy-as-format ()
+  "Copy the current line or active region and add it to the kill ring as
+GitHub/Slack/JIRA/HipChat/... formatted code. Format defaults to `copy-as-format-default'.
+The buffer will not be modified.
+
+With a prefix argument prompt for the format.
+"
+  (interactive)
+  (let ((text (copy-as-format--extract-text))
+	(format (if current-prefix-arg
+		    (completing-read "Format: "
+				     (mapcar 'car copy-as-format-format-alist)
+				     nil
+				     t
+				     ""
+				     nil
+				     copy-as-format-default)
+		  copy-as-format-default)))
+
+    (when (string= text "")
+      (error "No text selected"))
+
+    (kill-new (funcall
+	       (cadr (assoc format copy-as-format-format-alist))
+	       text
+	       (use-region-p)))
+
+    (setq deactivate-mark t)))
+
+;; Generate format specific functions
+(loop for (name) in copy-as-format-format-alist
+      do (fset (intern (concat "copy-as-format-" name))
+	       `(lambda ()
+		  (interactive)
+		  (setq copy-as-format-default ,name)
+		  (copy-as-format))))
 
 (provide 'copy-as-format)
 ;;; copy-as-format.el ends here
