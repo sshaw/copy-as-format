@@ -29,7 +29,12 @@ With a prefix argument prompt for the format.
 
 ## Adding Formats
 
-Create your format function:
+Create a format function with a signature of `TEXT MULTILINE`:
+
+* `TEXT` - the text to be formatted
+* `MULTILINE` - `t` if `TEXT` spans multiple lines, otherwise `nil`
+
+For example:
 
 ```el
 (defun some-great-format (text multiline)
@@ -38,7 +43,8 @@ Create your format function:
     (single-line-format text)))
 ```
 
-Then add an entry to `copy-as-format-format-alist`:
+Then, add an entry to `copy-as-format-format-alist`. The key is the format's name
+and the value is the format function:
 
 ```el
 (add-to-list 'copy-as-format-format-alist '("great-format" some-great-format))

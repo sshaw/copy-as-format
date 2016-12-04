@@ -60,21 +60,21 @@
      (exchange-point-and-mark))
     (let ((end (region-end)))
       (when (= end (line-beginning-position))
-	(setq end (1- end)))
+        (setq end (1- end)))
       (buffer-substring (region-beginning) end))))
 
 (defun copy-as-format--disqus (text multiline)
   (format "<pre><code class='%s'>%s</code></pre>\n"
-	  (copy-as-format--language)
-	  (xml-escape-string text)))
+          (copy-as-format--language)
+          (xml-escape-string text)))
 
 (defun copy-as-format--github (text multiline)
   (if multiline
       (concat "```"
-	      (copy-as-format--language)
-	      "\n"
-	      text
-	      "\n```\n")
+              (copy-as-format--language)
+              "\n"
+              text
+              "\n```\n")
     (copy-as-format--inline-markdown text)))
 
 (defun copy-as-format--hipchat (text multiline)
@@ -97,9 +97,9 @@
 (defun copy-as-format--markdown (text multiline)
   (if multiline
       (with-temp-buffer
-	(insert text)
-	(indent-rigidly 1 (point-max) 4)
-	(buffer-string))
+        (insert text)
+        (indent-rigidly 1 (point-max) 4)
+        (buffer-string))
     (copy-as-format--inline-markdown text)))
 
 (defun copy-as-format--slack (text multiline)
@@ -126,34 +126,38 @@ The buffer will not be modified.
 With a prefix argument prompt for the format.
 "
   (interactive)
-  (let ((text (copy-as-format--extract-text))
-	(format (if current-prefix-arg
-		    (completing-read "Format: "
-				     (mapcar 'car copy-as-format-format-alist)
-				     nil
-				     t
-				     ""
-				     nil
-				     copy-as-format-default)
-		  copy-as-format-default)))
+  (let* ((text (copy-as-format--extract-text))
+         (format (if current-prefix-arg
+                     (completing-read "Format: "
+                                      (mapcar 'car copy-as-format-format-alist)
+                                      nil
+                                      t
+                                      ""
+                                      nil
+                                      copy-as-format-default)
+                   copy-as-format-default))
+         (func (cadr (assoc format copy-as-format-format-alist))))
 
     (when (string= text "")
       (error "No text selected"))
 
+    (when (not (fboundp func))
+      (error "Missing or invalid format function for `%s'" format))
+
     (kill-new (funcall
-	       (cadr (assoc format copy-as-format-format-alist))
-	       text
-	       (use-region-p)))
+               func
+               text
+               (use-region-p)))
 
     (setq deactivate-mark t)))
 
 ;; Generate format specific functions
 (loop for (name) in copy-as-format-format-alist
       do (fset (intern (concat "copy-as-format-" name))
-	       `(lambda ()
-		  (interactive)
-		  (setq copy-as-format-default ,name)
-		  (copy-as-format))))
+               `(lambda ()
+                  (interactive)
+                  (setq copy-as-format-default ,name)
+                  (copy-as-format))))
 
 (provide 'copy-as-format)
 ;;; copy-as-format.el ends here
