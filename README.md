@@ -3,6 +3,8 @@
 Emacs function to copy buffer locations as GitHub/Slack/JIRA/HipChat/...
 formatted code
 
+![copy-as-format demo](demo.gif)
+
 ## Supported Formats/Services
 
 * BitBucket
