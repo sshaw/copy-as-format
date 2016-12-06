@@ -3,7 +3,7 @@
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
 ;; Package-Version: 0.0.1
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, tools, convenience
-;; URL: http://github.com/sshaw/copy-as-format
+;; URL: https://github.com/sshaw/copy-as-format
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -25,16 +25,16 @@
 ;;; Commentary:
 
 ;; Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted code and add them
-;; to the kill ring. The buffer will not be modified.
+;; to the kill ring.  The buffer will not be modified.
 ;;
-;; With a prefix argument prompt for the format. Defaults to `copy-as-format-default'.
+;; With a prefix argument prompt for the format.  Defaults to `copy-as-format-default'.
 
 ;;; Code:
 
 (require 'xml)
 
 (defvar copy-as-format-default "markdown"
-  "Name of the default formatter, defaults to `markdown'")
+  "Name of the default formatter, defaults to `markdown'.")
 
 (defvar copy-as-format-format-alist
   '(("bitbucket" copy-as-format--github)
@@ -46,7 +46,7 @@
     ("jira"      copy-as-format--jira)
     ("markdown"  copy-as-format--markdown)
     ("slack"     copy-as-format--slack))
-  "Alist of format names and the function to do the formatting")
+  "Alist of format names and the function to do the formatting.")
 
 (defconst copy-as-format--jira-supported-languages
   '(("as"  "actionscript")
@@ -128,11 +128,10 @@
 ;;;###autoload
 (defun copy-as-format ()
   "Copy the current line or active region and add it to the kill ring as
-GitHub/Slack/JIRA/HipChat/... formatted code. Format defaults to `copy-as-format-default'.
-The buffer will not be modified.
+GitHub/Slack/JIRA/HipChat/... formatted code. Format defaults to
+`copy-as-format-default'. The buffer will not be modified.
 
-With a prefix argument prompt for the format.
-"
+With a prefix argument prompt for the format."
   (interactive)
   (let* ((text (copy-as-format--extract-text))
          (format (if current-prefix-arg
