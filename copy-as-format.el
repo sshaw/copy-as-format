@@ -48,6 +48,14 @@
     ("slack"     copy-as-format--slack))
   "Alist of format names and the function to do the formatting")
 
+(defconst copy-as-format--jira-supported-languages
+  '(("as"  "actionscript")
+    ("htm" "html")
+    ("js"  "javascript")))
+
+(dolist (lang '("html" "java" "sql" "xhtml" "xml"))
+  (add-to-list 'copy-as-format--jira-supported-languages (list lang lang)))
+
 (defun copy-as-format--extract-text ()
   (if (not (use-region-p))
       (buffer-substring (line-beginning-position) (line-end-position))
@@ -64,35 +72,34 @@
       (buffer-substring (region-beginning) end))))
 
 (defun copy-as-format--disqus (text multiline)
-  (format "<pre><code class='%s'>%s</code></pre>\n"
+  (format "<pre><code class='%s'>\n%s\n</code></pre>\n"
           (copy-as-format--language)
           (xml-escape-string text)))
 
 (defun copy-as-format--github (text multiline)
   (if multiline
-      (concat "```"
-              (copy-as-format--language)
-              "\n"
-              text
-              "\n```\n")
+      (format "```%s\n%s\n```\n" (copy-as-format--language) text)
     (copy-as-format--inline-markdown text)))
 
 (defun copy-as-format--hipchat (text multiline)
   ;; If I recall HipChat treats multiline and single line the same
   ;; TODO: does leading whitspace need to be trimmed?
-  (concat "/code " text))
+  (format "/code %s" text))
 
 (defun copy-as-format--html (text multiline)
   (setq text (xml-escape-string text))
   (if multiline
-      (concat "<pre><code>" text "</code></pre>\n")
-    (concat "<code>" text "</code>")))
+      (format "<pre><code>\n%s\n</code></pre>\n" text)
+    (format "<code>%s</code>" text)))
 
 (defun copy-as-format--jira (text multiline)
   (if multiline
-      ;; Do we want filenames? What extentions work?
-      (concat "{code}\n" text "\n{code}\n")
-    (concat "{{" text "}}")))
+      (let ((lang (car (assoc (copy-as-format--language)
+			      copy-as-format--jira-supported-languages))))
+	(format "{code%s}\n%s\n{code}\n"
+		(if (null lang) "" (concat ":" lang))
+		text))
+    (format "{{%s}}" text)))
 
 (defun copy-as-format--markdown (text multiline)
   (if multiline
@@ -104,17 +111,18 @@
 
 (defun copy-as-format--slack (text multiline)
   (if multiline
-      (concat "```\n" text "\n```\n")
+      (format "```\n%s\n```\n" text)
     (copy-as-format--inline-markdown
      ;; Slack preserves leading and trailing whitespace
      (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" text))))
 
 (defun copy-as-format--inline-markdown (text)
-  (concat "`" text "`"))
+  (format "`%s`" text))
 
 (defun copy-as-format--language ()
   (if (buffer-file-name)
-      (file-name-extension (buffer-file-name))
+      ;; There may be no extension so downcase filename to avoid nil check
+      (file-name-extension (downcase (buffer-file-name)))
     ""))
 
 ;;;###autoload
