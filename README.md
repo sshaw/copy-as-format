@@ -27,6 +27,14 @@ The buffer will not be modified.
 
 With a prefix argument prompt for the format.
 
+`M-x copy-as-format-SERVICE`
+
+Where `SERVICE` is one of the supported services:
+
+```el
+(global-set-key (kbd "C-c w s") 'copy-as-format-slack)
+(global-set-key (kbd "C-c w g") 'copy-as-format-github)
+```
 ## Adding Formats
 
 Create a format function with a signature of `TEXT MULTILINE`:

@@ -168,5 +168,15 @@ With a prefix argument prompt for the format."
                      (setq copy-as-format-default ,name)
                      (copy-as-format))))
 
+;;;###autoload (autoload 'copy-as-format-bitbucket "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-disqus    "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-github    "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-gitlab    "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-hipchat   "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-html      "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-jira      "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-markdown  "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-slack     "copy-as-format" nil t)
+
 (provide 'copy-as-format)
 ;;; copy-as-format.el ends here
