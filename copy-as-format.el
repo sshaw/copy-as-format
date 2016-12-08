@@ -4,6 +4,7 @@
 ;; Package-Version: 0.0.1
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
+;; Package-Requires: ((cl-lib "0.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -31,6 +32,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'xml)
 
 (defvar copy-as-format-default "markdown"
@@ -159,12 +161,12 @@ With a prefix argument prompt for the format."
     (setq deactivate-mark t)))
 
 ;; Generate format specific functions
-(loop for (name) in copy-as-format-format-alist
-      do (fset (intern (concat "copy-as-format-" name))
-               `(lambda ()
-                  (interactive)
-                  (setq copy-as-format-default ,name)
-                  (copy-as-format))))
+(cl-loop for (name) in copy-as-format-format-alist
+         do (fset (intern (concat "copy-as-format-" name))
+                  `(lambda ()
+                     (interactive)
+                     (setq copy-as-format-default ,name)
+                     (copy-as-format))))
 
 (provide 'copy-as-format)
 ;;; copy-as-format.el ends here
