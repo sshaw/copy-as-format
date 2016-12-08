@@ -29,12 +29,15 @@ With a prefix argument prompt for the format.
 
 `M-x copy-as-format-SERVICE`
 
-Where `SERVICE` is one of the supported services:
+Where `SERVICE` is one of the supported services.
+
+It's a good idea to bind these functions to a key sequence:
 
 ```el
 (global-set-key (kbd "C-c w s") 'copy-as-format-slack)
 (global-set-key (kbd "C-c w g") 'copy-as-format-github)
 ```
+
 ## Adding Formats
 
 Create a format function with a signature of `TEXT MULTILINE`:
