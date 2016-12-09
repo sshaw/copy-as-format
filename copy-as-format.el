@@ -60,7 +60,7 @@
 
 (defun copy-as-format--extract-text ()
   (if (not (use-region-p))
-      (buffer-substring (line-beginning-position) (line-end-position))
+      (buffer-substring-no-properties (line-beginning-position) (line-end-position))
     ;; Avoid adding an extra blank line to the selection. This happens when point or mark
     ;; is at the start of the next line.
     ;;
@@ -71,7 +71,7 @@
     (let ((end (region-end)))
       (when (= end (line-beginning-position))
         (setq end (1- end)))
-      (buffer-substring (region-beginning) end))))
+      (buffer-substring-no-properties (region-beginning) end))))
 
 (defun copy-as-format--disqus (text multiline)
   (format "<pre><code class='%s'>\n%s\n</code></pre>\n"

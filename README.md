@@ -1,5 +1,7 @@
 # copy-as-format
 
+[![MELPA](https://melpa.org/packages/copy-as-format-badge.svg)](https://melpa.org/#/copy-as-format)
+
 Emacs function to copy buffer locations as GitHub/Slack/JIRA/HipChat/...
 formatted code
 
