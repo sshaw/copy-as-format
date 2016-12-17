@@ -101,7 +101,7 @@
 	(format "{code%s}\n%s\n{code}\n"
 		(if (null lang) "" (concat ":" lang))
 		text))
-    (format "{{%s}}" text)))
+    (format "{{%s}}" (copy-as-format--trim text))))
 
 (defun copy-as-format--markdown (text multiline)
   (if multiline
@@ -116,7 +116,7 @@
       (format "```\n%s\n```\n" text)
     (copy-as-format--inline-markdown
      ;; Slack preserves leading and trailing whitespace
-     (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" text))))
+     (copy-as-format--trim text))))
 
 (defun copy-as-format--inline-markdown (text)
   (format "`%s`" text))
@@ -126,6 +126,10 @@
       ;; There may be no extension so downcase filename to avoid nil check
       (file-name-extension (downcase (buffer-file-name)))
     ""))
+
+(defun copy-as-format--trim (s)
+  (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" s))
+
 
 ;;;###autoload
 (defun copy-as-format ()
