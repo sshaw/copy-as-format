@@ -1,7 +1,7 @@
 ;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted text
 
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.1
+;; Package-Version: 0.0.2
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
@@ -30,9 +30,17 @@
 ;;
 ;; With a prefix argument prompt for the format.  Defaults to `copy-as-format-default'.
 
+;;; Change Log:
+
+;; 2016-12-31 - v0.0.2
+;; * Remove leading whitespace when copying regions
+;; * Remove leading whitespace when copying JIRA single lines
+;; * Use buffer-substring-no-properties instead of buffer-substring
+
 ;;; Code:
 
 (require 'cl-lib)
+(require 'tabify)
 (require 'xml)
 
 (defvar copy-as-format-default "markdown"
@@ -66,12 +74,29 @@
     ;;
     ;; When selection is from bottom to top, exchange point and mark
     ;; so that the `point' and `(region-end)' are the same.
-   (when (< (point) (mark))
-     (exchange-point-and-mark))
-    (let ((end (region-end)))
+    (when (< (point) (mark))
+      (exchange-point-and-mark))
+
+    (let (n min text (end (region-end)))
       (when (= end (line-beginning-position))
-        (setq end (1- end)))
-      (buffer-substring-no-properties (region-beginning) end))))
+	(setq end (1- end)))
+
+      ;; Let's trim unnecessary leading space from the region
+      (setq text (buffer-substring-no-properties (region-beginning) end))
+      (with-temp-buffer
+	(insert text)
+	(goto-char (point-min))
+	;; The length of the match (see below) determines how much leading space to trim
+	;; Without this only one space would be trimmed for each tab
+	(untabify (point-min) (point-max))
+	(while (search-forward-regexp "^\\([[:space:]]*\\)[^[:space:]]" nil t)
+	  (setq n (length (match-string 1)))
+	  (when (or (null min) (< n min))
+	    (setq min n)))
+
+	(when (and (not (null min)) (> min 0))
+	  (indent-rigidly 1 (point-max) (- min)))
+	(buffer-string)))))
 
 (defun copy-as-format--disqus (text multiline)
   (format "<pre><code class='%s'>\n%s\n</code></pre>\n"
