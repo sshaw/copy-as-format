@@ -9,7 +9,7 @@ formatted code
 
 ## Supported Formats/Services
 
-* BitBucket
+* Bitbucket
 * Disqus
 * GitHub
 * GitLab
