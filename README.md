@@ -17,6 +17,7 @@ formatted code
 * HTML
 * JIRA
 * Markdown
+* Org-mode
 * Slack
 
 ## Usage
