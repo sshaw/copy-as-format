@@ -1,4 +1,4 @@
-;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted text
+;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted text -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
