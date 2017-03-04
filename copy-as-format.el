@@ -1,4 +1,4 @@
-;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted text -*- lexical-binding: t; -*-
+;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA/HipChat/... formatted code -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
@@ -33,7 +33,12 @@
 
 ;;; Change Log:
 
-;; 2016-02-07 - v0.0.3
+;; 2017-03-03 - v0.0.4
+;; * Add support for MediaWiki
+;; * Fix for language when the file has no extension
+;; * Fix v0.0.3's release date in Change Log
+;;
+;; 2017-02-07 - v0.0.3
 ;; * Add support for Org-mode
 ;;
 ;; 2016-12-31 - v0.0.2
@@ -59,6 +64,7 @@
     ("html"      copy-as-format--html)
     ("jira"      copy-as-format--jira)
     ("markdown"  copy-as-format--markdown)
+    ("mediawiki" copy-as-format--mediawiki)
     ("org-mode"  copy-as-format--org-mode)
     ("slack"     copy-as-format--slack))
   "Alist of format names and the function to do the formatting.")
@@ -141,6 +147,12 @@
         (buffer-string))
     (copy-as-format--inline-markdown text)))
 
+(defun copy-as-format--mediawiki (text multiline)
+  (format "<syntaxhighlight lang='%s'%s>\n%s\n</syntaxhighlight>"
+          (copy-as-format--language)
+          (if (not multiline) " inline" "")
+          text))
+
 (defun copy-as-format--org-mode (text multiline)
   (format "#+BEGIN_SRC %s\n%s\n#+END_SRC\n"
           (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))
@@ -157,10 +169,9 @@
   (format "`%s`" text))
 
 (defun copy-as-format--language ()
-  (if (buffer-file-name)
-      ;; There may be no extension so downcase filename to avoid nil check
-      (file-name-extension (downcase (buffer-file-name)))
-    ""))
+  (or (and (buffer-file-name)
+           (file-name-extension (downcase (buffer-file-name))))
+      ""))
 
 (defun copy-as-format--trim (s)
   (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" s))

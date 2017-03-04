@@ -17,6 +17,7 @@ formatted code
 * HTML
 * JIRA
 * Markdown
+* MediaWiki
 * Org-mode
 * Slack
 
@@ -67,3 +68,4 @@ and the value is the format function:
 ## See Also
 
 * [git-link](https://github.com/sshaw/git-link)
+* [output-as-format](https://github.com/sshaw/output-as-format) - A command line version of copy-as-format
