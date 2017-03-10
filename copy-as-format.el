@@ -35,6 +35,7 @@
 
 ;; 2017-XX-XX - v0.0.5
 ;; * Add support for POD
+;; * Add support for reStructuredText
 ;; * Fix MediaWiki function autoload
 ;;
 ;; 2017-03-03 - v0.0.4
@@ -71,6 +72,7 @@
     ("mediawiki" copy-as-format--mediawiki)
     ("org-mode"  copy-as-format--org-mode)
     ("pod"       copy-as-format--pod)
+    ("rst"       copy-as-format--rst)
     ("slack"     copy-as-format--slack))
   "Alist of format names and the function to do the formatting.")
 
@@ -171,6 +173,16 @@
         (buffer-string))
     (format "C<< %s >>" text)))
 
+(defun copy-as-format--rst (text multiline)
+  (if multiline
+      ;; Not sure what highlighting directives are supported and where, so leave it blank
+      (format ".. code::\n\n%s\n"
+              (with-temp-buffer
+                (insert text)
+                (indent-rigidly 1 (point-max) 4)
+                (buffer-string)))
+    (format "``%s``" (copy-as-format--trim text))))
+
 (defun copy-as-format--slack (text multiline)
   (if multiline
       (format "```\n%s\n```\n" text)
@@ -242,6 +254,7 @@ With a prefix argument prompt for the format."
 ;;;###autoload (autoload 'copy-as-format-mediawiki "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-org-mode  "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-pod       "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-rst       "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-slack     "copy-as-format" nil t)
 
 (provide 'copy-as-format)
