@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.3
+;; Package-Version: 0.0.5 (Unreleased)
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
@@ -33,6 +33,10 @@
 
 ;;; Change Log:
 
+;; 2017-XX-XX - v0.0.5
+;; * Add support for POD
+;; * Fix MediaWiki function autoload
+;;
 ;; 2017-03-03 - v0.0.4
 ;; * Add support for MediaWiki
 ;; * Fix for language when the file has no extension
@@ -66,6 +70,7 @@
     ("markdown"  copy-as-format--markdown)
     ("mediawiki" copy-as-format--mediawiki)
     ("org-mode"  copy-as-format--org-mode)
+    ("pod"       copy-as-format--pod)
     ("slack"     copy-as-format--slack))
   "Alist of format names and the function to do the formatting.")
 
@@ -158,6 +163,14 @@
           (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))
           text))
 
+(defun copy-as-format--pod (text multiline)
+  (if multiline
+      (with-temp-buffer
+        (insert text)
+        (indent-rigidly 1 (point-max) 2)
+        (buffer-string))
+    (format "C<< %s >>" text)))
+
 (defun copy-as-format--slack (text multiline)
   (if multiline
       (format "```\n%s\n```\n" text)
@@ -226,7 +239,9 @@ With a prefix argument prompt for the format."
 ;;;###autoload (autoload 'copy-as-format-html      "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-jira      "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-markdown  "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-mediawiki "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-org-mode  "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-pod       "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-slack     "copy-as-format" nil t)
 
 (provide 'copy-as-format)

@@ -19,6 +19,7 @@ formatted code
 * Markdown
 * MediaWiki
 * Org-mode
+* POD
 * Slack
 
 ## Usage
