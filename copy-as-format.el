@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.5 (Unreleased)
-;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, tools, convenience
+;; Package-Version: 0.0.5
+;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, pod, rst, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
 
@@ -33,7 +33,7 @@
 
 ;;; Change Log:
 
-;; 2017-XX-XX - v0.0.5
+;; 2017-03-10 - v0.0.5
 ;; * Add support for POD
 ;; * Add support for reStructuredText
 ;; * Fix MediaWiki function autoload
@@ -116,7 +116,7 @@
 	  (indent-rigidly 1 (point-max) (- min)))
 	(buffer-string)))))
 
-(defun copy-as-format--disqus (text multiline)
+(defun copy-as-format--disqus (text _multiline)
   (format "<pre><code class='%s'>\n%s\n</code></pre>\n"
           (copy-as-format--language)
           (xml-escape-string text)))
@@ -126,7 +126,7 @@
       (format "```%s\n%s\n```\n" (copy-as-format--language) text)
     (copy-as-format--inline-markdown text)))
 
-(defun copy-as-format--hipchat (text multiline)
+(defun copy-as-format--hipchat (text _multiline)
   ;; If I recall HipChat treats multiline and single line the same
   ;; TODO: does leading whitspace need to be trimmed?
   (format "/code %s" text))
@@ -160,7 +160,7 @@
           (if (not multiline) " inline" "")
           text))
 
-(defun copy-as-format--org-mode (text multiline)
+(defun copy-as-format--org-mode (text _multiline)
   (format "#+BEGIN_SRC %s\n%s\n#+END_SRC\n"
           (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))
           text))
@@ -205,8 +205,8 @@
 ;;;###autoload
 (defun copy-as-format ()
   "Copy the current line or active region and add it to the kill ring as
-GitHub/Slack/JIRA/HipChat/... formatted code. Format defaults to
-`copy-as-format-default'. The buffer will not be modified.
+GitHub/Slack/JIRA/HipChat/... formatted code.  Format defaults to
+`copy-as-format-default'.  The buffer will not be modified.
 
 With a prefix argument prompt for the format."
   (interactive)
