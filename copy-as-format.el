@@ -84,9 +84,9 @@
 (dolist (lang '("html" "java" "sql" "xhtml" "xml"))
   (add-to-list 'copy-as-format--jira-supported-languages (list lang lang)))
 
-(defun copy-as-format--extract-text ()
+(defun copy-as-format--active-boundary ()
   (if (not (use-region-p))
-      (buffer-substring-no-properties (line-beginning-position) (line-end-position))
+      (list (line-beginning-position) (line-end-position))
     ;; Avoid adding an extra blank line to the selection. This happens when point or mark
     ;; is at the start of the next line.
     ;;
@@ -95,26 +95,36 @@
     (when (< (point) (mark))
       (exchange-point-and-mark))
 
-    (let (n min text (end (region-end)))
+    (let ((end (region-end)))
       (when (= end (line-beginning-position))
 	(setq end (1- end)))
+      (list (region-beginning) end))))
 
-      ;; Let's trim unnecessary leading space from the region
-      (setq text (buffer-substring-no-properties (region-beginning) end))
-      (with-temp-buffer
-	(insert text)
-	(goto-char (point-min))
-	;; The length of the match (see below) determines how much leading space to trim
-	;; Without this only one space would be trimmed for each tab
-	(untabify (point-min) (point-max))
-	(while (search-forward-regexp "^\\([[:space:]]*\\)[^[:space:]]" nil t)
-	  (setq n (length (match-string 1)))
-	  (when (or (null min) (< n min))
-	    (setq min n)))
+(defun copy-as-format--multiline (s)
+  (let ((n (with-temp-buffer
+             (insert s)
+             (goto-char (point-min))
+             (count-matches "\n"))))
+    (or (> n 1)
+        (and (eq n 1) (not (string-match-p "\n\\'" s))))))
 
-	(when (and (not (null min)) (> min 0))
-	  (indent-rigidly 1 (point-max) (- min)))
-	(buffer-string)))))
+(defun copy-as-format--extract-text (start end)
+  (let (n min (text (buffer-substring-no-properties start end)))
+    ;; Let's trim unnecessary leading space from the region
+    (with-temp-buffer
+      (insert text)
+      (goto-char (point-min))
+      ;; The length of the match (see below) determines how much leading space to trim
+      ;; Without this only one space would be trimmed for each tab
+      (untabify (point-min) (point-max))
+      (while (search-forward-regexp "^\\([[:space:]]*\\)[^[:space:]]" nil t)
+        (setq n (length (match-string 1)))
+        (when (or (null min) (< n min))
+          (setq min n)))
+
+      (when (and (not (null min)) (> min 0))
+        (indent-rigidly 1 (point-max) (- min)))
+      (buffer-string))))
 
 (defun copy-as-format--disqus (text _multiline)
   (format "<pre><code class='%s'>\n%s\n</code></pre>\n"
@@ -201,26 +211,29 @@
 (defun copy-as-format--trim (s)
   (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" s))
 
-
 ;;;###autoload
-(defun copy-as-format ()
+(defun copy-as-format (start &optional end format)
   "Copy the current line or active region and add it to the kill ring as
 GitHub/Slack/JIRA/HipChat/... formatted code.  Format defaults to
 `copy-as-format-default'.  The buffer will not be modified.
 
 With a prefix argument prompt for the format."
-  (interactive)
-  (let* ((text (copy-as-format--extract-text))
-         (format (if current-prefix-arg
-                     (completing-read "Format: "
-                                      (mapcar 'car copy-as-format-format-alist)
-                                      nil
-                                      t
-                                      ""
-                                      nil
-                                      copy-as-format-default)
-                   copy-as-format-default))
-         (func (cadr (assoc format copy-as-format-format-alist))))
+  (interactive (let ((bounds (copy-as-format--active-boundary))
+                     (format (if current-prefix-arg
+                                 (completing-read "Format: "
+                                                  (mapcar 'car copy-as-format-format-alist)
+                                                  nil
+                                                  t
+                                                  ""
+                                                  nil
+                                                  copy-as-format-default)
+                               copy-as-format-default)))
+                 (setq deactivate-mark t)
+                 `(,@bounds ,format)))
+
+  (let* ((text (copy-as-format--extract-text start end))
+         (func (cadr (assoc (or format copy-as-format-default)
+                            copy-as-format-format-alist))))
 
     (when (string= text "")
       (error "No text selected"))
@@ -228,12 +241,14 @@ With a prefix argument prompt for the format."
     (when (not (fboundp func))
       (error "Missing or invalid format function for `%s'" format))
 
-    (kill-new (funcall
-               func
-               text
-               (use-region-p)))
+    (setq text (funcall
+                func
+                text
+                (copy-as-format--multiline text)))
 
-    (setq deactivate-mark t)))
+    (if (called-interactively-p 'any)
+        (kill-new text)
+      text)))
 
 ;; Generate format specific functions
 (cl-loop for (name) in copy-as-format-format-alist
@@ -241,7 +256,7 @@ With a prefix argument prompt for the format."
                   `(lambda ()
                      (interactive)
                      (setq copy-as-format-default ,name)
-                     (copy-as-format))))
+                     (copy-as-format start end format))))
 
 ;;;###autoload (autoload 'copy-as-format-bitbucket "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-disqus    "copy-as-format" nil t)
