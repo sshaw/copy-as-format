@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.5
+;; Package-Version: 0.0.6
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, pod, rst, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
@@ -30,9 +30,14 @@
 ;; to the kill ring.  The buffer will not be modified.
 ;;
 ;; With a prefix argument prompt for the format.  Defaults to `copy-as-format-default'.
+;;
+;; To add formats see `copy-as-format-format-alist'.
 
 ;;; Change Log:
 
+;; 2017-06-03 - v0.0.6
+;; * Fix Disqus: don't include a code tag unless we have a mode
+;;
 ;; 2017-03-10 - v0.0.5
 ;; * Add support for POD
 ;; * Add support for reStructuredText
@@ -117,9 +122,12 @@
 	(buffer-string)))))
 
 (defun copy-as-format--disqus (text _multiline)
-  (format "<pre><code class='%s'>\n%s\n</code></pre>\n"
-          (copy-as-format--language)
-          (xml-escape-string text)))
+  (let ((lang (copy-as-format--language))
+        (text (xml-escape-string text)))
+   (when (not (string-empty-p lang))
+      (setq text (format "<code class='%s'>\n%s\n</code>" lang text)))
+
+   (format "<pre>%s</pre>\n" text)))
 
 (defun copy-as-format--github (text multiline)
   (if multiline
@@ -222,7 +230,7 @@ With a prefix argument prompt for the format."
                    copy-as-format-default))
          (func (cadr (assoc format copy-as-format-format-alist))))
 
-    (when (string= text "")
+    (when (string-empty-p text)
       (error "No text selected"))
 
     (when (not (fboundp func))
