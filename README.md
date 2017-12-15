@@ -9,6 +9,7 @@ formatted code
 
 ## Supported Formats/Services
 
+* AsciiDoc
 * Bitbucket
 * Disqus
 * GitHub
@@ -43,6 +44,8 @@ It's a good idea to bind these functions to a key sequence:
 (global-set-key (kbd "C-c w s") 'copy-as-format-slack)
 (global-set-key (kbd "C-c w g") 'copy-as-format-github)
 ```
+
+For AsciiDoc output see `copy-as-format-asciidoc-include-filename` and `copy-as-format-asciidoc-language-alist`.
 
 ## Adding Formats
 

@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.6
-;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, pod, rst, tools, convenience
+;; Package-Version: 0.0.7
+;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, pod, rst, asciidoc, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
 
@@ -32,9 +32,16 @@
 ;; With a prefix argument prompt for the format.  Defaults to `copy-as-format-default'.
 ;;
 ;; To add formats see `copy-as-format-format-alist'.
+;;
+;; For AsciiDoc output see `copy-as-format-asciidoc-include-filename' and
+;; `copy-as-format-asciidoc-language-alist'.
 
 ;;; Change Log:
 
+;; 2017-12-15 - v0.0.7
+;; * Add support for AsciiDoc
+;; * Remove use of string-empty-p to support pre 24.4 versions of Emacs
+;;
 ;; 2017-06-03 - v0.0.6
 ;; * Fix Disqus: don't include a code tag unless we have a mode
 ;;
@@ -66,7 +73,8 @@
   "Name of the default formatter, defaults to `markdown'.")
 
 (defvar copy-as-format-format-alist
-  '(("bitbucket" copy-as-format--github)
+  '(("asciidoc"  copy-as-format--asciidoc)
+    ("bitbucket" copy-as-format--github)
     ("disqus"    copy-as-format--disqus)
     ("github"    copy-as-format--github)
     ("gitlab"    copy-as-format--github)
@@ -80,6 +88,14 @@
     ("rst"       copy-as-format--rst)
     ("slack"     copy-as-format--slack))
   "Alist of format names and the function to do the formatting.")
+
+(defvar copy-as-format-asciidoc-include-file-name nil
+  "If non-nil include the buffer's file name.")
+
+(defvar copy-as-format-asciidoc-language-alist nil
+  "Alist of file name patterns to language names used for syntax highlighting.
+By default the buffer's file extension is used.  If this does not
+work with your processor add the appropriate mapping here.")
 
 (defconst copy-as-format--jira-supported-languages
   '(("as"  "actionscript")
@@ -121,11 +137,28 @@
 	  (indent-rigidly 1 (point-max) (- min)))
 	(buffer-string)))))
 
+(defun copy-as-format--asciidoc (text multiline)
+  (if multiline
+      (let* ((file (and (buffer-file-name) (file-name-nondirectory (buffer-file-name))))
+             (lang (or (and file (cadr (cl-find file
+                                                copy-as-format-asciidoc-language-alist
+                                                :test '(lambda (name pair) (string-match-p (car pair) name)))))
+                       (copy-as-format--language))))
+        (setq text (format "%s----\n%s\n----\n"
+                           (if (> (length lang) 0)
+                               (format "[source,%s]\n" lang)
+                             "")
+                           text))
+        (if (and copy-as-format-asciidoc-include-file-name file)
+            (format ".%s\n%s" file text)
+          text))
+    (copy-as-format--slack text nil)))
+
 (defun copy-as-format--disqus (text _multiline)
   (let ((lang (copy-as-format--language))
         (text (xml-escape-string text)))
-   (when (not (string-empty-p lang))
-      (setq text (format "<code class='%s'>\n%s\n</code>" lang text)))
+   (when (> (length lang) 0)
+     (setq text (format "<code class='%s'>\n%s\n</code>" lang text)))
 
    (format "<pre>%s</pre>\n" text)))
 
@@ -230,7 +263,7 @@ With a prefix argument prompt for the format."
                    copy-as-format-default))
          (func (cadr (assoc format copy-as-format-format-alist))))
 
-    (when (string-empty-p text)
+    (when (eq (length text) 0)
       (error "No text selected"))
 
     (when (not (fboundp func))
@@ -251,6 +284,7 @@ With a prefix argument prompt for the format."
                      (setq copy-as-format-default ,name)
                      (copy-as-format))))
 
+;;;###autoload (autoload 'copy-as-format-asciidoc  "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-bitbucket "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-disqus    "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-github    "copy-as-format" nil t)
