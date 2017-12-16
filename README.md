@@ -45,7 +45,7 @@ It's a good idea to bind these functions to a key sequence:
 (global-set-key (kbd "C-c w g") 'copy-as-format-github)
 ```
 
-For AsciiDoc output see `copy-as-format-asciidoc-include-filename` and `copy-as-format-asciidoc-language-alist`.
+For AsciiDoc customization see `copy-as-format-asciidoc-include-file-name` and `copy-as-format-asciidoc-language-alist`.
 
 ## Adding Formats
 
