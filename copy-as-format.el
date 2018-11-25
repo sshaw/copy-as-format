@@ -99,11 +99,28 @@ work with your processor add the appropriate mapping here.")
 
 (defconst copy-as-format--jira-supported-languages
   '(("as"  "actionscript")
+    ("adb" "ada")
+    ("ads" "ada")
+    ("cs"  "c#")
+    ("erl" "erlang")
+    ("hs"  "haskel")
     ("htm" "html")
-    ("js"  "javascript")))
+    ("mm"  "objc")
+    ("pl"  "perl")
+    ("pm"  "perl")
+    ("py"  "python")
+    ("rb"  "ruby")
+    ("ksh" "sh")
+    ("vb"  "visualbasic")
+    ("yml" "yaml"))
+  "Alist mapping file extensions to Jira language names.
+Jira's {code} markup blocks are documented at URL `https://jira.atlassian.com/secure/WikiRendererHelpAction.jspa?section=advanced',
+but you can get a complete list from Jira itself by trying to use
+a language unknown to it.")
 
-(dolist (lang '("html" "java" "sql" "xhtml" "xml"))
+(dolist (lang '("applescript" "bash" "c" "cpp" "css" "go" "groovy" "html" "java" "js" "json" "lua" "php" "r" "scala" "sh" "sql" "swift" "xml" "yaml"))
   (add-to-list 'copy-as-format--jira-supported-languages (list lang lang)))
+
 
 (defun copy-as-format--extract-text ()
   (if (not (use-region-p))
@@ -180,11 +197,9 @@ work with your processor add the appropriate mapping here.")
 
 (defun copy-as-format--jira (text multiline)
   (if multiline
-      (let ((lang (car (assoc (copy-as-format--language)
-			      copy-as-format--jira-supported-languages))))
-	(format "{code%s}\n%s\n{code}\n"
-		(if (null lang) "" (concat ":" lang))
-		text))
+      (let ((lang (car (cdr (assoc (copy-as-format--language)
+			           copy-as-format--jira-supported-languages)))))
+	(format "{code:%s}\n%s\n{code}\n" (or lang "none") text))
     (format "{{%s}}" (copy-as-format--trim text))))
 
 (defun copy-as-format--markdown (text multiline)
