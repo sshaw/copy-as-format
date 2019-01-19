@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2016-2017 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.7
+;; Package-Version: 0.0.8
 ;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, pod, rst, asciidoc, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
@@ -38,6 +38,9 @@
 
 ;;; Change Log:
 
+;; 2019-01-19 - v0.0.8
+;; * Add more languages to Jira (thanks Peter Oliver)
+;;
 ;; 2017-12-15 - v0.0.7
 ;; * Add support for AsciiDoc
 ;; * Remove use of string-empty-p to support pre 24.4 versions of Emacs
