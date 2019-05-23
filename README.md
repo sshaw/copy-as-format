@@ -2,7 +2,7 @@
 
 [![MELPA](https://melpa.org/packages/copy-as-format-badge.svg)](https://melpa.org/#/copy-as-format)
 
-Emacs function to copy buffer locations as GitHub/Slack/JIRA/HipChat/...
+Emacs function to copy buffer locations as GitHub/Slack/JIRA etc...
 formatted code
 
 ![copy-as-format demo](demo.gif)
