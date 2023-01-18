@@ -14,7 +14,7 @@ formatted code
 * Disqus
 * GitHub
 * GitLab
-* HipChat
+* ⚰ HipChat
 * HTML
 * JIRA
 * Markdown
@@ -29,7 +29,7 @@ formatted code
 `M-x copy-as-format` or `C-u M-x copy-as-format`
 
 Copy the current line or active region and add it to the kill ring as
-GitHub/Slack/JIRA/HipChat/... formatted code. Format defaults to `copy-as-format-default`.
+GitHub/Slack/JIRA... formatted code. Format defaults to `copy-as-format-default`.
 The buffer will not be modified.
 
 With a prefix argument prompt for the format.
@@ -73,4 +73,4 @@ and the value is the format function:
 ## See Also
 
 * [git-link](https://github.com/sshaw/git-link)
-* [output-as-format](https://github.com/sshaw/output-as-format) - A command line version of copy-as-format
+* [output-as-format](https://github.com/sshaw/output-as-format) - A command-line version of copy-as-format
