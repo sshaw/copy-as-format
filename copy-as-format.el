@@ -98,7 +98,9 @@
     ("org-mode"  copy-as-format--org-mode)
     ("pod"       copy-as-format--pod)
     ("rst"       copy-as-format--rst)
-    ("slack"     copy-as-format--slack))
+    ("telegram"  copy-as-format--github)
+    ("slack"     copy-as-format--slack)
+    ("whatsapp"  copy-as-format--whatsapp))
   "Alist of format names and the function to do the formatting."
   :type '(alist :key-type string :value-type (group function))
   :group 'copy-as-format)
@@ -275,6 +277,9 @@ a language unknown to it.")
 (defun copy-as-format--trim (s)
   (replace-regexp-in-string "^[[:space:]]+\\|[[:space:]]+$" "" s))
 
+(defun copy-as-format--whatsapp (text _multiline)
+  ;; Only 1 format supported
+  (format "```%s```" text))
 
 ;;;###autoload
 (defun copy-as-format ()
@@ -331,6 +336,8 @@ With a prefix argument prompt for the format."
 ;;;###autoload (autoload 'copy-as-format-pod       "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-rst       "copy-as-format" nil t)
 ;;;###autoload (autoload 'copy-as-format-slack     "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-telegram  "copy-as-format" nil t)
+;;;###autoload (autoload 'copy-as-format-whatsapp  "copy-as-format" nil t)
 
 (provide 'copy-as-format)
 ;;; copy-as-format.el ends here

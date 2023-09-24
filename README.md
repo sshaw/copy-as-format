@@ -23,6 +23,8 @@ formatted code
 * POD
 * reStructuredText
 * Slack
+* Telegram
+* WhatsApp
 
 ## Usage
 
