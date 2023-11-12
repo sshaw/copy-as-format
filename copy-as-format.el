@@ -1,9 +1,9 @@
 ;;; copy-as-format.el --- Copy buffer locations as GitHub/Slack/JIRA etc... formatted code -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2016-2017 Skye Shaw
+;; Copyright (C) 2016-2024 Skye Shaw
 ;; Author: Skye Shaw <skye.shaw@gmail.com>
-;; Package-Version: 0.0.8
-;; Keywords: github, slack, jira, hipchat, gitlab, bitbucket, org-mode, pod, rst, asciidoc, tools, convenience
+;; Package-Version: 0.0.9
+;; Keywords: github, slack, jira, telegram, gitlab, bitbucket, org-mode, pod, rst, asciidoc, whatsapp, tools, convenience
 ;; URL: https://github.com/sshaw/copy-as-format
 ;; Package-Requires: ((cl-lib "0.5"))
 
@@ -38,6 +38,10 @@
 
 ;;; Change Log:
 
+;; 2023-11-12 - v0.0.9
+;; * Add support for WhatsApp
+;; * Add support for Telegram
+;;
 ;; 2019-01-19 - v0.0.8
 ;; * Add more languages to Jira (thanks Peter Oliver)
 ;;
