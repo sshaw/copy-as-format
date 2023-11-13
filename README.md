@@ -49,6 +49,8 @@ It's a good idea to bind these functions to a key sequence:
 
 For AsciiDoc customization see `copy-as-format-asciidoc-include-file-name` and `copy-as-format-asciidoc-language-alist`.
 
+For Org-mode customization see `copy-as-format-asciidoc-include-file-name` and `copy-as-format-include-line-number`.
+
 ## Adding Formats
 
 Create a format function with a signature of `TEXT MULTILINE`:

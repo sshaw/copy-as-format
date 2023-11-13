@@ -114,6 +114,11 @@
   :type 'boolean
   :group 'copy-as-format)
 
+(defcustom copy-as-format-include-line-number nil
+  "If non-nil include line numbering for copied snippet."
+  :type 'boolean
+  :group 'copy-as-format)
+
 (defcustom copy-as-format-asciidoc-language-alist nil
   "Alist of file name patterns to language names used for syntax highlighting.
 By default the buffer's file extension is used.  If this does not
@@ -241,9 +246,16 @@ a language unknown to it.")
           text))
 
 (defun copy-as-format--org-mode (text _multiline)
-  (format "#+BEGIN_SRC %s\n%s\n#+END_SRC\n"
-          (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))
-          text))
+  (let* ((file (and (buffer-file-name) (file-name-nondirectory (buffer-file-name)))))
+    (format "%s#+BEGIN_SRC %s %s\n%s\n#+END_SRC\n"
+            (if (and copy-as-format-asciidoc-include-file-name file)
+                (format "#+CAPTION: %s\n" file)
+              "")
+            (replace-regexp-in-string "-mode\\'" "" (symbol-name major-mode))
+            (if copy-as-format-include-line-number
+                (format "-n %s" (line-number-at-pos))
+              "")
+            text)))
 
 (defun copy-as-format--pod (text multiline)
   (if multiline
